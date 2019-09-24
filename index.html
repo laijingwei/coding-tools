@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="msapplication-tap-highlight" content="no">
+  <meta name="viewport" content="user-scalable=no,initial-scale=1,maximum-scale=1,minimum-scale=1,width=device-width">
+
+  <title>经纬实验室</title>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons" rel="stylesheet" type="text/css">
+  <link rel="icon" href="src/assets/svg/jenkins.png" type="image/x-icon">
+  <link href="src/assets/quasar/quasar.mat.min.css" rel="stylesheet" type="text/css">
+  <link href="src/assets/tailwind/tailwind.css" rel="stylesheet" type="text/css">
+  <link href="src/assets/styles.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+<div id="q-app">
+  <q-layout view="lHh Lpr fff">
+    <q-layout-header reveal>
+      <q-toolbar color="primary" :inverted="$q.theme === 'ios'">
+        <q-btn flat round dense @click="drawerState = !drawerState" icon="menu"></q-btn>
+
+        <q-toolbar-title>
+          经纬实验室
+        </q-toolbar-title>
+
+        <q-btn flat round dense @click="launch('http://127.0.0.1:9000')" icon="library_books"></q-btn>
+      </q-toolbar>
+    </q-layout-header>
+
+    <q-layout-drawer v-model="drawerState" :content-class="$q.theme === 'mat' ? 'bg-grey-3' : null">
+      <q-list no-border link inset-delimiter>
+        <div class="row flex-center bg-grey-2" style="height: 120px">
+          <q-spinner-gears color="primary" :size="96" />
+        </div>
+        <q-list-header>列表</q-list-header>
+
+        <q-item v-for="(item,i) in routers" :key="i" @click.native="openRouter(i)" :class="{'bg-primary text-white':$route.path==item.path}">
+          <q-item-side :icon="item.icon" :class="{'text-white':$route.path==item.path}"></q-item-side>
+          <q-item-main :label="item.label" :sublabel="item.sublabel" :class="{'text-white':$route.path==item.path}"></q-item-main>
+        </q-item>
+
+      </q-list>
+    </q-layout-drawer>
+
+    <q-page-container>
+      <keep-alive>
+        <router-view></router-view>
+      </keep-alive>
+    </q-page-container>
+
+  </q-layout>
+</div>
+
+
+<!-- home -->
+<template id="home">
+  <q-page padding class="column" style="background:#f3f3f3">
+
+    <div class="row full-width q-mb-lg">
+      <q-input
+          v-model="search"
+          type="text"
+          maxlength="10"
+          placeholder="输入关键词搜索"
+          autofocus
+          hide-underline
+          color="primary"
+          class="q-display-1 border-2 q-px-md bg-white full-width rounded-lg"
+        />
+    </div>
+
+
+    <div class="row flex-wrap full-width">
+
+      <div
+        v-for="(item,j) in filteredData"
+        :key="j"
+        class="col-xs-12 col-md-6 col-lg-4 col-xl-3 row items-center q-pa-sm"
+      >
+
+        <a :href="item.home" class="no-underline w-full" target="_blank">
+          <div class="row flex-no-wrap items-center border p-4 h-full w-full bg-white rounded text-grey-darkest hover:shadow-md hover:border-blue">
+            <div class="column mr-4" style="min-width: 3rem;">
+              <img :src="item.logo|avatar" alt="">
+            </div>
+            <div class="column w-full relative">
+              <p class="font-bold text-sm">{{item.name}}</p>
+              <p class="text-grey-darkest text-sm mt-2">{{item.des}}</p>
+              <img
+                class="absolute pin-r w-4 h-4"
+                v-if="item.repository"
+                @click.prevent="launch(item.repository)"
+                src="src/assets/svg/github-original.svg"
+                alt=""
+              >
+            </div>
+          </div>
+        </a>
+
+      </div>
+
+    </div>
+
+  </q-page>
+</template>
+
+
+<!-- time -->
+<template id="time">
+  <q-page padding>
+
+    <div class="row full-width">
+
+      <div class="row full-width q-mb-lg">
+        <h6 class="q-py-sm text-white bg-grey-4 rounded q-pa-md full-width">{{ `当前时间：${nowConvert} (${now})` }}</h4>
+      </div>
+
+      <div class="row full-width">
+        <div class="flex-1">
+          <q-input v-model="time" type="number" maxlength="10" placeholder="请输入 10 位时间戳" autofocus hide-underline
+            @focus="onFocus" color="primary" class="q-display-1 border-2 q-px-md rounded-lg" />
+        </div>
+
+        <div class="q-pa-lg text-grey">
+          <h4 class="text-primary">或</h4>
+        </div>
+
+        <div class="flex-1">
+          <q-input v-model="timeUnix" type="number" maxlength="13" placeholder="13 位时间戳" hide-underline @focus="onFocus"
+            color="primary" class="q-display-1 border-2 q-px-md rounded-lg" />
+        </div>
+      </div>
+
+      <div class="column full-width q-pa-lg q-mt-lg bg-primary rounded-lg">
+        <h5 class="text-white q-mb-md">转换结果</h5>
+        <div class="row bg-white q-pa-lg rounded-lg shadow h-48">
+          <h4 class="text-grey-darkest">{{ unixConvert }}</h4>
+        </div>
+      </div>
+
+    </div>
+
+  </q-page>
+  </template>
+
+
+<!-- color -->
+<template id="color">
+  <q-page padding>
+
+    <div class="row">
+      <div class="col-lg-6">
+        <q-color-picker v-model="modelHex"/>
+      </div>
+      <div class="col-lg-6 q-pl-lg">
+        <div class="full-height full-width row justify-center q-card shadow-12 flex-center" :style="{'background': modelHex}">
+          <h1 class="text-white q-display-2">{{ modelHex }}</h1>
+        </div>
+      </div>
+    </div>
+
+  </q-page>
+</template>
+
+<!-- anime -->
+<template id="anime">
+  <q-page padding>
+
+    <div class="spot bg-primary q-ma-md demo2 row flex-center text-white q-headline">demo1</div>
+
+    <div class="spot bg-primary q-ma-md demo1 row flex-center text-white q-headline">demo3</div>
+
+
+    <div class="h-32 row flex-center">
+      <h4 class="demo4"></h4>
+    </div>
+
+    <div class="spot bg-primary q-ma-md demo5 row flex-center text-white q-headline">demo5</div>
+
+    <div class="spot bg-primary q-ma-md demo6 row flex-center text-white q-headline">demo6</div>
+
+    <div>
+      <div class="spot bg-primary q-ma-md demo3 row flex-center text-white q-headline">demo2</div>
+      <div class="spot bg-primary q-ma-md demo3 row flex-center text-white q-headline">demo2</div>
+      <div class="spot bg-primary q-ma-md demo3 row flex-center text-white q-headline">demo2</div>
+    </div>
+
+
+    <div>
+      <div class="spot bg-primary q-ma-md demo7 row flex-center text-white q-headline">demo7</div>
+      <div class="spot bg-primary q-ma-md demo7 row flex-center text-white q-headline">demo7</div>
+      <div class="spot bg-primary q-ma-md demo7 row flex-center text-white q-headline">demo7</div>
+    </div>
+
+
+    <div style="height: 500px;"></div>
+  </q-page>
+</template>
+
+<!-- charts -->
+<template id="charts">
+  <q-page padding>
+
+    <q-btn-group>
+      <q-btn label="antv" :color="$route.path=='/charts/antv'?'primary':'white'" @click="$router.push('/charts/antv')"></q-btn>
+      <q-btn label="echarts" :color="$route.path=='/charts/echarts'?'primary':'white'" @click="$router.push('/charts/echarts')"></q-btn>
+    </q-btn-group>
+
+    <keep-alive>
+      <router-view></router-view>
+    </keep-alive>
+
+  </q-page>
+</template>
+
+
+<!-- antv -->
+<template id="antv">
+  <q-page padding>
+
+    <div id="mountNode"></div>
+
+  </q-page>
+</template>
+
+<!-- echarts -->
+<template id="echarts">
+  <q-page padding>
+
+    <div id="main" style="width: 80vw;height:100vh;"></div>
+
+  </q-page>
+</template>
+
+
+<!-- nodejs -->
+<template id="nodejs">
+  <q-page padding>
+
+    <div class="row flex-center">
+      <div class="q-my-lg full-width">
+        <q-table
+          title="数据列表"
+          :data="cards"
+          :columns="columns"
+          row-key="name"
+          class="full-width"
+        />
+      </div>
+    </div>
+
+  </q-page>
+</template>
+
+
+<!-- google -->
+<template id="google">
+  <q-page padding class="column" style="background:#f3f3f3">
+
+    <div class="row full-width q-mb-lg">
+      <q-input
+          v-model="text"
+          type="text"
+          placeholder="经纬一下···"
+          autofocus
+          hide-underline
+          color="primary"
+          @input="search"
+          @focus="reset"
+          class="q-display-1 border-2 q-px-md bg-white full-width rounded-lg"
+        />
+    </div>
+
+
+    <div class="row flex-wrap full-width">
+
+      <div
+        v-for="(item,j) in entries"
+        :key="j"
+        class="col-12 row items-center q-pa-sm"
+      >
+
+        <a :href="item.url" class="no-underline w-full" target="_blank">
+          <div class="row flex-no-wrap items-center border p-4 h-full w-full bg-white rounded text-grey-darkest hover:shadow-md hover:border-blue">
+            <div class="column w-full relative">
+              <p class="font-bold text-sm">{{item.name}}</p>
+              <p class="text-grey-darkest text-sm mt-2">{{item.desc}}</p>
+              <p class="text-primary text-xs mt-2">{{item.url}}</p>
+            </div>
+          </div>
+        </a>
+
+      </div>
+
+    </div>
+
+    <div class="row q-my-md flex-center" v-show="entries && entries.length > 0">
+      <q-pagination
+        v-model="page"
+        text-color="white"
+        :min="1"
+        :max="10"
+        direction-links
+        @input="pagingInput"
+      />
+    </div>
+
+  </q-page>
+</template>
+
+
+
+
+
+<script src="bower_components/vue/dist/vue.min.js"></script>
+<script src="bower_components/vue-router/dist/vue-router.min.js"></script>
+<script src="bower_components/vuex/dist/vuex.min.js"></script>
+<script src="bower_components/axios/dist/axios.min.js"></script>
+<script src="bower_components/lodash/dist/lodash.min.js"></script>
+<script src="bower_components/moment/min/moment-with-locales.min.js"></script>
+<script src="bower_components/animejs/lib/anime.min.js"></script>
+<script src="src/assets/quasar/quasar.mat.umd.min.js"></script>
+<script src="src/assets/antv/g6-3.0.0.js"></script>
+<script src="src/assets/antv/g6-2.2.0.js"></script>
+<script src="src/assets/echarts/echarts.min.js"></script>
+<script type="module" src="src/app.js"></script>
+</body>
+
+</html>

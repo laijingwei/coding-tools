@@ -1,0 +1,26 @@
+{
+  "name": "coding-tools",
+  "authors": [
+    "赖经纬 <laijingwei1993@163.com>"
+  ],
+  "description": "",
+  "main": "",
+  "license": "MIT",
+  "homepage": "http://localhost:9001",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "vue": "^2.6.9",
+    "vue-router": "^3.0.2",
+    "vuex": "^3.1.0",
+    "lodash": "^4.17.11",
+    "moment": "^2.24.0",
+    "animejs": "^3.0.1",
+    "axios": "^0.18.0"
+  }
+}

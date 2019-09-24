@@ -1,0 +1,49 @@
+.logo-container {
+  width: 255px;
+  height: 242px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+}
+
+input.q-input-target {
+  height: 80px;
+}
+
+.q-color-saturation {
+  height: 50vh;
+}
+
+.q-color-inputs {
+  font-size: 36px;
+}
+
+.text-white > .q-item-sublabel {
+  color: white;
+}
+
+.bg-white {
+  color: black !important;
+}
+
+.q-toolbar-title {
+  font-size: 20px;
+}
+
+.q-toolbar {
+  height: 56px;;
+}
+
+.logo {
+  position: absolute;
+}
+
+.spot {
+  width: 120px;
+  height: 60px;
+}
+
+.q-pagination .q-btn {
+  padding: 0 14px!important;
+}
